@@ -16,7 +16,7 @@ class MCPClient:
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
-        self.client =  OpenAI(api_key="sk-f001f220a67e4a9ba183e8db2c08c81d", base_url="https://api.deepseek.com")
+        self.client =  OpenAI(api_key="sk-", base_url="https://api.deepseek.com")
         # print(self.client)
         self.messages = []
         print('a')
