@@ -16,9 +16,10 @@ class MCPClient:
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
-        self.client =  OpenAI(api_key="sk-", base_url="https://api.deepseek.com")
+        self.client =  OpenAI(api_key="sk-f001f220a67e4a9ba183e8db2c08c81d", base_url="https://api.deepseek.com")
         # print(self.client)
         self.messages = []
+        print('a')
 
     async def connect_to_server(self, server_script_path: str):
         """Connect to an MCP server
@@ -47,21 +48,21 @@ class MCPClient:
         # List available tools
         response = await self.session.list_tools()
         tools = response.tools
-        # print("\nConnected to server with tools:", [tool.name for tool in tools])
+        print("\nConnected to server with tools:", [tool.name for tool in tools])
 
     async def process_query(self, query: str) -> str:
         """Process a query using OpenAI and available tools"""
 
         self.messages.append({"role": "user","content": query})
 
-        response = await self.session.list_tools()
+        # response = await self.session.list_tools()
 
 
         available_tools = [{ 
             "type": "function",
             "function": {
-                "name": tool.name,
-                "description": tool.description,
+                "name": "get_alerts",
+                "description": "Get weather alerts for a US state.",
                 "parameters":{
                     "type": "object",
                     "properties": {
@@ -73,7 +74,30 @@ class MCPClient:
                     "required": ["state"]
                 }
             }
-        } for tool in response.tools]
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_forecast",
+                "description": "Get weather forecast for a location.",
+                "parameters":{
+                    "type": "object",
+                    "properties": {
+                        "latitude": {
+                            "type": "number",
+                            "description": "The latitude of the city, e.g., 30.2741 for Hangzhou (positive for N, negative for S)"
+                        },
+                        "longitude": {
+                            "type": "number",
+                            "description": "The longitude of the city, e.g., 120.1552 for Hangzhou (positive for E, negative for W)"
+                        }
+                    },
+                    "required": ["latitude","longitude"]
+                }
+            }
+        }]
+
+        # print(f"tools:{response.tools}")
 
         # Initial OpenAI API call
         response = self.client.chat.completions.create(
@@ -163,4 +187,5 @@ async def main():
 
 if __name__ == "__main__":
     import sys
+    # print('1')
     asyncio.run(main())
